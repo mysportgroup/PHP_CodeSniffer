@@ -96,12 +96,16 @@ class PHP_CodeSniffer_Reports_Full implements PHP_CodeSniffer_Report
         }
 
         $file       = $report['filename'];
+        //Only show file name
+        $file = strrchr($file, '/');
         $fileLength = strlen($file);
-        $maxWidth   = max(($fileLength + 6), ($maxErrorLength + $paddingLength));
-        $width      = min($width, $maxWidth);
-        if ($width < 70) {
-            $width = 70;
+        if (($fileLength + 6) > ($maxErrorLength + $paddingLength)) {
+            $width = min($width, ($fileLength + 6));
+        } else {
+            $width = min($width, ($maxErrorLength + $paddingLength));
         }
+
+        $width = max($width, 70);
 
         echo PHP_EOL."\033[1mFILE: ";
         if ($fileLength <= ($width - 6)) {
@@ -135,10 +139,6 @@ class PHP_CodeSniffer_Reports_Full implements PHP_CodeSniffer_Report
 
         // The maximum amount of space an error message can use.
         $maxErrorSpace = ($width - $paddingLength - 1);
-        if ($showSources === true) {
-            // Account for the chars used to print colors.
-            $maxErrorSpace += 8;
-        }
 
         foreach ($report['messages'] as $line => $lineErrors) {
             foreach ($lineErrors as $column => $colErrors) {
@@ -167,16 +167,17 @@ class PHP_CodeSniffer_Reports_Full implements PHP_CodeSniffer_Report
                     }
 
                     echo ' | ';
-                    if ($report['fixable'] > 0) {
-                        echo '[';
-                        if ($error['fixable'] === true) {
-                            echo 'x';
-                        } else {
-                            echo ' ';
-                        }
-
-                        echo '] ';
-                    }
+                    //Don't show fixing options
+//                    if ($report['fixable'] > 0) {
+//                        echo '[';
+//                        if ($error['fixable'] === true) {
+//                            echo 'x';
+//                        } else {
+//                            echo ' ';
+//                        }
+//
+//                        echo '] ';
+//                    }
 
                     echo $errorMsg.PHP_EOL;
                 }//end foreach
@@ -184,10 +185,11 @@ class PHP_CodeSniffer_Reports_Full implements PHP_CodeSniffer_Report
         }//end foreach
 
         echo str_repeat('-', $width).PHP_EOL;
-        if ($report['fixable'] > 0) {
-            echo "\033[1m".'PHPCBF CAN FIX THE '.$report['fixable'].' MARKED SNIFF VIOLATIONS AUTOMATICALLY'."\033[0m".PHP_EOL;
-            echo str_repeat('-', $width).PHP_EOL;
-        }
+        //Don't report about automatically fixing
+//        if ($report['fixable'] > 0) {
+//            echo "\033[1m".'PHPCBF CAN FIX THE '.$report['fixable'].' MARKED SNIFF VIOLATIONS AUTOMATICALLY'."\033[0m".PHP_EOL;
+//            echo str_repeat('-', $width).PHP_EOL;
+//        }
 
         echo PHP_EOL;
         return true;
